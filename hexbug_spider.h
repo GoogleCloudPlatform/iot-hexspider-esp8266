@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -80,7 +80,7 @@ int HEXBUG_ROT = 0;
 
 #define HEXBUG_SPIDER_KHZ    38
 
-                                   // 2                  2                           2     2                            2    
+                                   // 2                  2                           2     2                            2
 #define HEXBUG_SPIDER_SIGNAL(code) { HEXBUG_SPIDER_LEAD, HEXBUG_SPIDER_CONTROL_CODE, code, HEXBUG_SPIDER_CONTROLLER_ID, HEXBUG_SPIDER_STOP }
 
 uint16_t hexbug_spider_signal[HEXBUG_SPIDER_SIGNALS][26] = {
@@ -92,7 +92,7 @@ uint16_t hexbug_spider_signal[HEXBUG_SPIDER_SIGNALS][26] = {
 
 // hexbug_spider_send emits an IR signal.
 void hexbug_spider_send(int code) {
-    // Adapts IRdump to ESP8266 
+    // Adapts IRdump to ESP8266
     hexbug_spider_irsend->sendRaw(
       hexbug_spider_signal[code], 26, HEXBUG_SPIDER_KHZ);
     delay(HEXBUG_DELAY_AFTER_INSTRUCTION);
@@ -136,7 +136,7 @@ void hexbug_spider_advance(int times) {
 // hexbug_spider_spin sends rotation instructions by the number of degrees
 // given, if deg is > 0, this is a clockwise rotation, if deg < 0, this is a
 // counter-clockwise rotation.
-void hexbug_spider_spin(int deg) {  
+void hexbug_spider_spin(int deg) {
   int times, i;
   times = int(float(HEXBUG_FULL_ROTATION)*float(float(abs(deg)) / 360.0f));
 

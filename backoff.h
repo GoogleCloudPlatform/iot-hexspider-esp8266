@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,7 +33,7 @@ void resetBackoff() {
 bool backoff() {
   if ((millis() - lastRequestTime) > currDelay) {
     backOffCount++;
-    currDelay = (backOffCount * backOffCount * minBackoff) + random(minJitter,maxJitter);      
+    currDelay = (backOffCount * backOffCount * minBackoff) + random(minJitter,maxJitter);
     if (currDelay > maxBackoff) {
       currDelay = maxBackoff;
     }

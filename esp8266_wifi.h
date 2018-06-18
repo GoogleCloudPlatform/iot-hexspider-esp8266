@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -91,13 +91,13 @@ void doRequest(WiFiClientSecure* client, boolean isGet, String postData) {
     "host: cloudiotdevice.googleapis.com\n" +
     "cache-control: no-cache\n" +
     authstring + "\n";
-    
+
   if (isGet) {
     request = request + String("\n");
   } else {
-    request = request + 
-        "method: post\n" + 
-        "content-type: application/json\n" + 
+    request = request +
+        "method: post\n" +
+        "content-type: application/json\n" +
         "content-length:" + String(postData.length()) +
         "\n\n" + postData + "\n\n";
   }
@@ -137,7 +137,7 @@ void sendTelemetry(String data) {
 
   WiFiClientSecure client;
   doRequest(&client, false, postdata);
-  
+
   while (!client.available()) {
     delay(100);
     Serial.print('.');

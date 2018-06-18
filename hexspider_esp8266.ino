@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,11 +32,11 @@ void waitForEcho() {
   unsigned long lastTime = millis();
   firstRead = getRangeCm();
   //Serial.println(firstRead);
-  
+
   delay(250);
   boolean keepGoing = true;
   while (keepGoing) {
-    int lastRead = getRangeCm();    
+    int lastRead = getRangeCm();
     //Serial.println(lastRead);
     if (millis() - lastTime > 1000){
       blinkOn = blinkOn ? false : true;
@@ -68,7 +68,7 @@ void blinkTimes(int times) {
       strip.show();
     }
     delay(250);
-    digitalWrite(LED_BUILTIN, LOW);   
+    digitalWrite(LED_BUILTIN, LOW);
     if(hasStrip) {
       strip.setPixelColor(0, 0);
       strip.show();
@@ -81,7 +81,7 @@ boolean rangeWait = false; // block config refresh until range changes
 boolean booted = false;
 void setup() {
   Serial.begin(115200);
-  
+
   delay(1000);
   Serial.println("Hello, waiting...");
   delay(5000);
@@ -99,7 +99,7 @@ void setup() {
   blinkTimes(2);
   delay(500);
   hexbug_spider_setup_pin(IR_LED);
-  
+
   #ifdef HWTEST
   while(true) {
     testHardware();
@@ -126,7 +126,7 @@ int getHexConfig () {
     String line = client.readStringUntil('\n');
     Serial.println(line);
     // NOTE: This method and the following are character length sensitive
-    if (line.indexOf("version\": \"") > 0) {    
+    if (line.indexOf("version\": \"") > 0) {
       int ver = line.substring(line.indexOf(": \"") + 3, line.lastIndexOf("\"")).toInt();
       Serial.println(String(ver));
       Serial.println(String(lastSeen));
@@ -145,11 +145,11 @@ int getHexConfig () {
         toReturn = 0; // SCAN
       } else if (val == "MQ==") {
         toReturn = 1; // Forward
-      } else if (val == "Mg==") {        
+      } else if (val == "Mg==") {
         toReturn =  2; // Right
-      } else if (val == "Mw==") {        
+      } else if (val == "Mw==") {
         toReturn = 3; // Back
-      } else if (val == "NA==") {        
+      } else if (val == "NA==") {
         toReturn = 4; // Left
       } else if (val == "NQ==") {
         toReturn = 5; // Seek
@@ -180,7 +180,7 @@ void postRange() {
 bool scanDone = true;
 void scan() {
   Serial.println("scan");
-  if (!scanDone) {  
+  if (!scanDone) {
     for (int i=0; i < 6; i++) {
       hexbug_spider_spin(20);
       postRange();
@@ -200,7 +200,7 @@ void bootLoop(){
   Serial.println("Boot config: " + String(moveConfig));
   hexbug_spider_spin(-20);
   hexbug_spider_spin(20);
-  
+
   configChange = false; // explicitly disable handling of initial command
   booted = true;
 }
@@ -227,8 +227,8 @@ void processConfig(int conf) {
       break;
     default:
       // STOP!
-      break;     
-  }  
+      break;
+  }
 }
 
 int configFreq = 1000;
@@ -237,7 +237,7 @@ unsigned long lastTime = millis();
 unsigned long lastConfig = millis();
 unsigned long lastTelemetry = millis();
 void loop(void) {
-  unsigned long currTime = millis();  
+  unsigned long currTime = millis();
 
   if (!booted){
     bootLoop();
@@ -249,7 +249,7 @@ void loop(void) {
 
   // Serial command interface
   //cliLoop();
-  
+
   // Update configuration
   if (backoff()) {
     int newConfig = getHexConfig();

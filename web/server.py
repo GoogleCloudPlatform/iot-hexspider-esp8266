@@ -1,6 +1,6 @@
 #!/bin/python
 
-# Copyright 2017 Google Inc.
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 app = flask.Flask(__name__, static_url_path='')
 
 messages = []
-subscription_name = 'homer'
+subscription_name = 'your-subscription-name'
 REGION_ID = 'us-central1'
-REGISTRY_ID = 'arduino-test'
-PROJECT_ID = 'glassy-nectar-370'
+REGISTRY_ID = 'your-registry-name'
+PROJECT_ID = 'your-project-id'
 
 
 API_SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
@@ -131,7 +131,7 @@ def process_command_all():
 @app.before_request
 def before_first_request():
     subscriber = pubsub_v1.SubscriberClient()
-    subscription_path = subscriber.subscription_path('glassy-nectar-370', 'homer')
+    subscription_path = subscriber.subscription_path(PROJECT_ID, subscription_name)
     #subscriber.subscribe_experimental(subscription_name, pubsub_callback)
     app.logger.info(subscription_path)
     app.logger.info(dir(app))
