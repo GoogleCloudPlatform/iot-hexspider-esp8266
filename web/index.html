@@ -1,0 +1,296 @@
+<!--
+   Copyright 2018 Google
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/ >
+    <title>Bleep Bleep Radar</title>
+
+    <!-- Google fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+
+    <!-- D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+    <style>
+      body {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 300;
+        fill: #242424;
+        text-align: center;
+        text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+        cursor: default;
+      }
+      .legend {
+        font-family: 'Raleway', sans-serif;
+        fill: #333333;
+      }
+      .tooltip {
+        fill: #333333;
+      }
+
+      .container {
+        display: flex; /* or inline-flex */
+        flex-flow: row wrap;
+      }
+    </style>
+
+  </head>
+  <body>
+    <span class="container">
+      <script type="text/javascript">
+      function radar(deviceId) {
+        fetch('/command?deviceId=' + deviceId + '&cmd=0').then((resp)  => resp.json()).
+        then(function(data){
+          console.log('radar response:', data);
+        });
+      }
+      function up(deviceId) {
+        fetch('/command?deviceId=' + deviceId + '&cmd=1').then((resp)  => resp.json()).
+        then(function(data){
+          console.log('command response:', data);
+        });
+      }
+      function right(deviceId) {
+        fetch('/command?deviceId=' + deviceId + '&cmd=2').then((resp)  => resp.json()).
+        then(function(data){
+          console.log('command response:', data);
+        });
+      }
+      function down(deviceId) {
+        fetch('/command?deviceId=' + deviceId + '&cmd=3').then((resp)  => resp.json()).
+        then(function(data){
+          console.log('command response:', data);
+        });
+      }
+      function left(deviceId) {
+        fetch('/command?deviceId=' + deviceId + '&cmd=4').then((resp)  => resp.json()).
+        then(function(data){
+          console.log('command response:', data);
+        });
+      }
+      </script>
+      <span>
+        <table>
+          <tr>
+          <td style="background-color:#ec3323">
+            <button onClick="radar('blinky')">&larrlp;</button><br/>
+            <button onClick="up('blinky')">&uarr;</button><br/>
+            <button onClick="right('blinky')">&rarr;</button><br/>
+            <button onClick="down('blinky')">&darr;</button><br/>
+            <button onClick="left('blinky')">&larr;</button><br/>
+          </td>
+          <td>
+            <span id='blinky' class="radarChart"></span>
+          </td>
+        </tr>
+        </table>
+      </span>
+      <!--
+      <span >
+        <table>
+          <tr>
+          <td style="background-color:#6efbfd">
+            <button onClick="radar('inky')">&larrlp;</button><br/>
+            <button onClick="up('inky')">&uarr;</button><br/>
+            <button onClick="right('inky')">&rarr;</button><br/>
+            <button onClick="down('inky')">&darr;</button><br/>
+            <button onClick="left('inky')">&larr;</button><br/>
+          </td>
+          <td>
+          <span id='inky' class="radarChart"></span>
+        </tr>
+        </table>
+      </span>
+      <span>
+        <table>
+          <tr>
+          <td style="background-color:#f5bcfb">
+            <button onClick="radar('pinky')">&larrlp;</button><br/>
+            <button onClick="up('pinky')">&uarr;</button><br/>
+            <button onClick="right('pinky')">&rarr;</button><br/>
+            <button onClick="down('pinky')">&darr;</button><br/>
+            <button onClick="left('pinky')">&larr;</button><br/>
+          </td>
+          <td>
+          <span id='pinky' class="radarChart"></span>
+        </tr>
+        </table>
+      </span>
+      <span>
+        <table>
+          <tr>
+          <td style="background-color:#f6ba64">
+            <button onClick="radar('clyde')">&larrlp;</button><br/>
+            <button onClick="up('clyde')">&uarr;</button><br/>
+            <button onClick="right('clyde')">&rarr;</button><br/>
+            <button onClick="down('clyde')">&darr;</button><br/>
+            <button onClick="left('clyde')">&larr;</button><br/>
+          </td>
+          <td>
+          <span id='clyde' class="radarChart"></span>
+        </tr>
+        </table>
+      </span>
+      -->
+    </span>
+    <script src="/js/3P/radarchart/radarChart.js"></script>
+    <script>
+      /* Based on Radar chart design created by Nadieh Bremer - VisualCinnamon.com */
+      //////////////////////////////////////////////////////////////
+      //////////////////////// Set-Up //////////////////////////////
+      //////////////////////////////////////////////////////////////
+      var margin = {top: 30, right: 30, bottom: 30, left: 30},
+        width = 270,
+        height = 270;
+
+      //////////////////////////////////////////////////////////////
+      ////////////////////////// Data //////////////////////////////
+      //////////////////////////////////////////////////////////////
+      const base = [
+        {
+          "axis": "0 deg",
+          "value": 0
+        },
+        {
+          "axis": "60 deg",
+          "value": 0
+        },
+        {
+          "axis": "120 deg",
+          "value": 0
+        },
+        {
+          "axis": "180 deg",
+          "value": 0
+        },
+        {
+          "axis": "240 deg",
+          "value": 0
+        },
+        {
+          "axis": "300 deg",
+          "value": 0
+        }
+      ];
+      function dataToPlots(data) {
+        var ret = [];
+        let maxValue = [];
+        for (j = 0; j < data.length; j++) {
+          let plot = data[j];
+          // Stringified JSON
+          if (!plot.scanId){ // Parse stringified JSON
+            plot = JSON.parse(plot);
+          }
+          if (!ret[plot.deviceId]){
+            ret[plot.deviceId] = [];
+          }
+
+
+          // Initialize plots by scanId
+          if (!ret[plot.deviceId][plot.scanId]) {
+            ret[plot.deviceId][plot.scanId] = [];
+          }
+          // Add baseline with axis in correct order
+          if (ret[plot.deviceId][0] == undefined){
+            ret[plot.deviceId][0] = base;
+          }
+
+          let currVal = parseInt(
+              plot.range.substring(0, plot.range.indexOf(' cm')));
+
+          if (!maxValue[plot.deviceId] || currVal > maxValue[plot.deviceId]) {
+            maxValue[plot.deviceId] = currVal;
+          }
+
+          ret[plot.deviceId][plot.scanId][ret[plot.deviceId][plot.scanId].length] =
+          {
+            axis: plot.scanAngle,
+            value: currVal
+          };
+        }
+        ret.max = maxValue;
+        return ret;
+      }
+
+      // Plots a certain number of entries (helps for animation)
+      function filterPlots(data, tickLimit) {
+        var ret = [];
+
+        if (tickLimit > data.length) {
+          for (i = 0; i < tickLimit - data.length; i++){
+            bleeps[bleeps.length] = {
+              scanAngle: (((i + data.length) * 60) % 360 + " deg"),
+              range: (Math.floor(Math.random()*500) + ' cm'),
+              scanId: Math.floor((i + data.length)/6)
+            }
+          }
+        }
+
+        for (j = 0; j < data.length && j < tickLimit; j++) {
+          let plot = data[j];
+          if (!ret[plot.scanId]) {
+            ret[plot.scanId] = []; // Initialize the plots by scanId
+          }
+          ret[plot.scanId][ret[plot.scanId].length] =
+          {
+            axis: plot.scanAngle,
+            value: plot.range.substring(0,
+                plot.range.indexOf(' cm'))
+          };
+        }
+        return ret;
+      }
+
+      var tickLimit = 1;
+      //////////////////////////////////////////////////////////////
+      var color = d3.scale.ordinal()
+        .range(["#EDC951","#CC333F","#00A0B0"]);
+
+      var radarChartOptions = {
+        w: width,
+        h: height,
+        margin: margin,
+        maxValue: 500,
+        levels: 5,
+        roundStrokes: true,
+        color: color
+      };
+      //Call function to draw the Radar chart
+      var p;
+      function tickRadar() {
+        fetch('/messages').then((resp)  => resp.json()).
+        then(function(data){
+          let plots = dataToPlots(data);
+          p = plots;
+          let s = Object.keys(plots);
+          for (j=0; j < s.length; j++) {
+            if (s[j] != 'max') {
+              radarChartOptions.maxValue = p.max[s[j]];
+              radarChartOptions.title = s[j];
+              console.log(s[j]);
+              console.log(plots[s[j]]);
+              RadarChart('#' + s[j], plots[s[j]], radarChartOptions);
+            }
+          }
+        });
+      }
+
+      setInterval(tickRadar, 3000);
+      tickRadar();
+    </script>
+  </body>
+</html>
