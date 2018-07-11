@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *****************************************************************************/
+#define HEXBUG_FULL_ROTATION 18
+
 #include "hexbug_spider.h"
 #include "backoff.h"
 #include "cli.h"
