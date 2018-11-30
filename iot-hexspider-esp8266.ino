@@ -157,7 +157,7 @@ void scan() {
     for (int i=0; i < 6; i++) {
       hexbug_spider_spin(20);
       postRange();
-      delay(10);
+      delay(200);
       mqttClient->loop(); // Keep MQTT connection alive
     }
   }
