@@ -119,8 +119,9 @@ void mqttConnect() {
     Serial.print(".");
     Serial.println(mqttClient->lastError());
     Serial.println(mqttClient->returnCode());
-    delay(1000);
+    delay(1000); // TODO: backoff();
   }
+  // TODO: resetBackoff();
   Serial.println("\nconnected!");
   mqttClient->subscribe(device->getConfigTopic());
   mqttClient->subscribe(device->getCommandsTopic());

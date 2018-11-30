@@ -216,7 +216,7 @@ void loop() {
     bootLoop();
   }
   if (hasStrip){
-    blinkyLoop(moveConfig );
+    blinkyLoop(moveConfig);
   }
   if (!mqttClient->connected()) {
     connect();
@@ -228,19 +228,18 @@ void loop() {
 
   // Update configuration
   // TODO: Fix logic to backoff, currently will let connection fail
-  //if (backoff()) {
   int newConfig = getHexConfig();
   if (newConfig != moveConfig) {
     configChange = true; // TODO: tihs moves to version
   }
-  if (newConfig != -1){
-    resetBackoff();
+  if (newConfig != 0){
+    // TODO: resetBackoff(); // Done in MQTT?
     moveConfig = newConfig;
-    Serial.println("Device config now: " + String(newConfig));
+    // Too verbose!
+    // Serial.println("Device config now: " + String(newConfig));
     blinkyLoop(newConfig);
   }
   lastConfig = currTime;
-  //}
 
   // Update position
   if (configChange) {
