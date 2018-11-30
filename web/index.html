@@ -53,31 +53,31 @@
     <span class="container">
       <script type="text/javascript">
       function radar(deviceId) {
-        fetch('/command?deviceId=' + deviceId + '&cmd=0').then((resp)  => resp.json()).
+        fetch('/command?deviceId=' + deviceId + '&cmd=1').then((resp)  => resp.json()).
         then(function(data){
           console.log('radar response:', data);
         });
       }
       function up(deviceId) {
-        fetch('/command?deviceId=' + deviceId + '&cmd=1').then((resp)  => resp.json()).
-        then(function(data){
-          console.log('command response:', data);
-        });
-      }
-      function right(deviceId) {
         fetch('/command?deviceId=' + deviceId + '&cmd=2').then((resp)  => resp.json()).
         then(function(data){
           console.log('command response:', data);
         });
       }
-      function down(deviceId) {
+      function right(deviceId) {
         fetch('/command?deviceId=' + deviceId + '&cmd=3').then((resp)  => resp.json()).
         then(function(data){
           console.log('command response:', data);
         });
       }
-      function left(deviceId) {
+      function down(deviceId) {
         fetch('/command?deviceId=' + deviceId + '&cmd=4').then((resp)  => resp.json()).
+        then(function(data){
+          console.log('command response:', data);
+        });
+      }
+      function left(deviceId) {
+        fetch('/command?deviceId=' + deviceId + '&cmd=5').then((resp)  => resp.json()).
         then(function(data){
           console.log('command response:', data);
         });

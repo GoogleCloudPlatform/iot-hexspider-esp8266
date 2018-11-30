@@ -89,7 +89,8 @@ void blinkyLoop(int currConfig) {
   onOff = !onOff;
   strip.setPixelColor(0, onOff ? color : 0);
   strip.show();
-  Serial.println(String(color, HEX));
+  // Too verbose!
+  //Serial.println(String(color, HEX));
 
   // TODO: fade?
   /*

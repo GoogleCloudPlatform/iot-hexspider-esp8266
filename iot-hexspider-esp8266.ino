@@ -23,7 +23,9 @@
 //#define DEVICE4
 //#define HWTEST
 #include "blinky.h"
-#include "esp8266_wifi.h"
+// Forward declare callback
+void spiderMessage(String &topic, String &payload);
+#include "esp8266_mqtt.h"
 #include "ranger.h"
 
 #define IR_LED 4 // ESP8266 GPIO pin to use. Recommended: 4 (D2).
@@ -112,58 +114,27 @@ void setup() {
 
   // Setting up WIFI
   blinkTimes(1);
-  setupWifi();
+  setupCloudIoT(); // Creates globals for MQTT
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  startMQTT();
+
   // Donion rings
   blinkTimes(4);
 }
 
 bool configChange = false; // Changes on version increments
 int lastSeen = 0;
+int hexConfig = -1;
 int getHexConfig () {
-  WiFiClientSecure client;
-  doRequest(&client, true, "");
-  int toReturn = -1;
+  return hexConfig;
+}
+void spiderMessage(String& topic, String& payload){
+  Serial.println("YOU HAVE A MESSage! - " + topic + ": " + payload );
+  configChange = true;
 
-  while (client.available()) {
-    String line = client.readStringUntil('\n');
-    Serial.println(line);
-    // NOTE: This method and the following are character length sensitive
-    if (line.indexOf("version\": \"") > 0) {
-      int ver = line.substring(line.indexOf(": \"") + 3, line.lastIndexOf("\"")).toInt();
-      Serial.println(String(ver));
-      Serial.println(String(lastSeen));
-      if (ver != lastSeen) { // Careful, this triggers long running operations
-        configChange = true;
-        lastSeen = ver;
-      }
-    }
-
-    if (line.indexOf("binaryData") > 0) {
-      String val =
-          line.substring(line.indexOf(": ") + 3,line.indexOf("\","));
-
-      // TODO: Enum
-      if (val == "MA==") {
-        toReturn = 0; // SCAN
-      } else if (val == "MQ==") {
-        toReturn = 1; // Forward
-      } else if (val == "Mg==") {
-        toReturn =  2; // Right
-      } else if (val == "Mw==") {
-        toReturn = 3; // Back
-      } else if (val == "NA==") {
-        toReturn = 4; // Left
-      } else if (val == "NQ==") {
-        toReturn = 5; // Seek
-      } else {
-        Serial.println("Unknown command: " + val);
-        toReturn -1;
-      }
-    }
-  }
-
-  client.stop();
-  return toReturn;
+  // TODO: Enum
+  hexConfig = payload.toInt();
 }
 
 
@@ -174,7 +145,7 @@ void postRange() {
       + "\", \"time\": " + String(time(nullptr)) + ", \"range\": \"" +
       String(getRangeCm(), DEC) + " cm\", \"scanId\": \""+ String(scanId) +
       "\", \"scanAngle\": \"" + String(HEXBUG_ROT % 360) + " deg\"}";
-  sendTelemetry(data);
+  publishTelemetry(data);
   Serial.println(data);
 }
 
@@ -186,9 +157,8 @@ void scan() {
     for (int i=0; i < 6; i++) {
       hexbug_spider_spin(20);
       postRange();
-      while (!backoff()) {
-        delay(10);
-      }
+      delay(200);
+      mqttClient->loop(); // Keep MQTT connection alive
     }
   }
   scanDone = true; // Only do one scan per config change
@@ -211,20 +181,20 @@ void bootLoop(){
 //       Would like dance / swoop modes
 void processConfig(int conf) {
   switch (conf) {
-    case 0:
+    case 1:
       scanDone = false;
       scan();
       break;
-    case 1: // FW
+    case 2: // FW
       hexbug_spider_advance(10);
       break;
-    case 2: // Right
+    case 3: // Right
       hexbug_spider_spin(20);
       break;
-    case 3: // Back
+    case 4: // Back
       hexbug_spider_advance(-5);
       break;
-    case 4: // Left
+    case 5: // Left
       hexbug_spider_spin(-20);
       break;
     default:
@@ -238,34 +208,38 @@ int telemFreq = 100;
 unsigned long lastTime = millis();
 unsigned long lastConfig = millis();
 unsigned long lastTelemetry = millis();
-void loop(void) {
+void loop() {
   unsigned long currTime = millis();
 
+  // UI First
   if (!booted){
     bootLoop();
   }
-
   if (hasStrip){
-    blinkyLoop(moveConfig );
+    blinkyLoop(moveConfig);
   }
+  if (!mqttClient->connected()) {
+    connect();
+  }
+  mqttClient->loop();
 
   // Serial command interface
   //cliLoop();
 
   // Update configuration
-  if (backoff()) {
-    int newConfig = getHexConfig();
-    if (newConfig != moveConfig) {
-      configChange = true; // TODO: tihs moves to version
-    }
-    if (newConfig != -1){
-      resetBackoff();
-      moveConfig = newConfig;
-      Serial.println("Device config now: " + String(newConfig));
-      blinkyLoop(newConfig);
-    }
-    lastConfig = currTime;
+  // TODO: Fix logic to backoff, currently will let connection fail
+  int newConfig = getHexConfig();
+  if (newConfig != moveConfig) {
+    configChange = true; // TODO: tihs moves to version
   }
+  if (newConfig != 0){
+    // TODO: resetBackoff(); // Done in MQTT?
+    moveConfig = newConfig;
+    // Too verbose!
+    // Serial.println("Device config now: " + String(newConfig));
+    blinkyLoop(newConfig);
+  }
+  lastConfig = currTime;
 
   // Update position
   if (configChange) {
@@ -278,8 +252,6 @@ void loop(void) {
     }
   }
 }
-
-
 
 // TRIGGER the things
 void testHardware() {
